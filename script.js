@@ -315,6 +315,11 @@ function startTutorial() {
     displayTutorialTranslations();
     updateTutorialFoundWords();
     showTutorialGuide(0);
+    
+    // グリッドサイズを調整（スマホ対応）
+    setTimeout(() => {
+        adjustTutorialGridSize();
+    }, 100);
 }
 
 // チュートリアルグリッド生成
@@ -410,17 +415,45 @@ function adjustTutorialGridSize() {
     const container = document.querySelector('.grid-container');
     if (!container || !tutorialGrid) return;
     
-    const containerWidth = container.clientWidth;
-    const availableWidth = containerWidth - 20; // パディングを考慮
-    const cellSize = Math.floor(availableWidth / tutorialGridSize);
+    // 画面幅を取得（パディングとマージンを考慮）
+    const screenWidth = window.innerWidth;
+    const containerPadding = 10; // コンテナのパディング
+    const gridPadding = 4; // グリッドのパディング（2px * 2）
+    const gridGap = 2; // グリッドのギャップ
+    
+    // 利用可能な幅を計算
+    const availableWidth = screenWidth - (containerPadding * 2) - (gridPadding * 2);
+    
+    // セルサイズを計算（ギャップを考慮）
+    const totalGapWidth = gridGap * (tutorialGridSize - 1);
+    const cellSize = Math.floor((availableWidth - totalGapWidth) / tutorialGridSize);
     
     // セルの最小サイズを確保
-    const minCellSize = window.innerWidth <= 480 ? 22 : 25;
-    if (cellSize < minCellSize) {
-        const maxGridWidth = minCellSize * tutorialGridSize;
-        tutorialGrid.style.maxWidth = `${maxGridWidth}px`;
+    const minCellSize = screenWidth <= 480 ? 20 : 25;
+    const finalCellSize = Math.max(cellSize, minCellSize);
+    
+    // グリッドの最大幅を設定
+    const maxGridWidth = (finalCellSize * tutorialGridSize) + totalGapWidth + (gridPadding * 2);
+    tutorialGrid.style.maxWidth = `${Math.min(maxGridWidth, availableWidth + gridPadding * 2)}px`;
+    
+    // セルサイズを直接設定（スマホ対応）
+    if (screenWidth <= 768) {
+        const cells = tutorialGrid.querySelectorAll('.cell');
+        cells.forEach(cell => {
+            cell.style.width = `${finalCellSize}px`;
+            cell.style.height = `${finalCellSize}px`;
+            cell.style.minWidth = `${finalCellSize}px`;
+            cell.style.minHeight = `${finalCellSize}px`;
+        });
     } else {
-        tutorialGrid.style.maxWidth = '100%';
+        // PCではデフォルトのスタイルを使用
+        const cells = tutorialGrid.querySelectorAll('.cell');
+        cells.forEach(cell => {
+            cell.style.width = '';
+            cell.style.height = '';
+            cell.style.minWidth = '';
+            cell.style.minHeight = '';
+        });
     }
 }
 
@@ -1059,6 +1092,11 @@ function startGame() {
     updateFoundWords();
     clearMessage.classList.add('hidden');
     hideAllAnswers();
+    
+    // グリッドサイズを調整（スマホ対応）
+    setTimeout(() => {
+        adjustGridSize();
+    }, 100);
 }
 
 // 開始画面に戻る
@@ -1361,17 +1399,45 @@ function adjustGridSize() {
     const container = document.querySelector('.grid-container');
     if (!container || !gridElement) return;
     
-    const containerWidth = container.clientWidth;
-    const availableWidth = containerWidth - 20; // パディングを考慮
-    const cellSize = Math.floor(availableWidth / gridSize);
+    // 画面幅を取得（パディングとマージンを考慮）
+    const screenWidth = window.innerWidth;
+    const containerPadding = 10; // コンテナのパディング
+    const gridPadding = 4; // グリッドのパディング（2px * 2）
+    const gridGap = 2; // グリッドのギャップ
+    
+    // 利用可能な幅を計算
+    const availableWidth = screenWidth - (containerPadding * 2) - (gridPadding * 2);
+    
+    // セルサイズを計算（ギャップを考慮）
+    const totalGapWidth = gridGap * (gridSize - 1);
+    const cellSize = Math.floor((availableWidth - totalGapWidth) / gridSize);
     
     // セルの最小サイズを確保
-    const minCellSize = window.innerWidth <= 480 ? 22 : 25;
-    if (cellSize < minCellSize) {
-        const maxGridWidth = minCellSize * gridSize;
-        gridElement.style.maxWidth = `${maxGridWidth}px`;
+    const minCellSize = screenWidth <= 480 ? 20 : 25;
+    const finalCellSize = Math.max(cellSize, minCellSize);
+    
+    // グリッドの最大幅を設定
+    const maxGridWidth = (finalCellSize * gridSize) + totalGapWidth + (gridPadding * 2);
+    gridElement.style.maxWidth = `${Math.min(maxGridWidth, availableWidth + gridPadding * 2)}px`;
+    
+    // セルサイズを直接設定（スマホ対応）
+    if (screenWidth <= 768) {
+        const cells = gridElement.querySelectorAll('.cell');
+        cells.forEach(cell => {
+            cell.style.width = `${finalCellSize}px`;
+            cell.style.height = `${finalCellSize}px`;
+            cell.style.minWidth = `${finalCellSize}px`;
+            cell.style.minHeight = `${finalCellSize}px`;
+        });
     } else {
-        gridElement.style.maxWidth = '100%';
+        // PCではデフォルトのスタイルを使用
+        const cells = gridElement.querySelectorAll('.cell');
+        cells.forEach(cell => {
+            cell.style.width = '';
+            cell.style.height = '';
+            cell.style.minWidth = '';
+            cell.style.minHeight = '';
+        });
     }
 }
 
