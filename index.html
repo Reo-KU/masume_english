@@ -8,8 +8,44 @@
 </head>
 <body>
     <div class="container">
+        <!-- チュートリアル画面 -->
+        <div id="tutorialScreen" class="screen">
+            <h1>アルファベットマス</h1>
+            <div class="tutorial-intro">
+                <h2>ようこそ！</h2>
+                <p>このゲームは、アルファベットのマス目の中から隠された単語を見つけるゲームです。</p>
+                <p>まずは簡単なチュートリアルで遊び方を覚えましょう！</p>
+                <button id="startTutorialButton" class="start-button">チュートリアルを始める</button>
+            </div>
+        </div>
+
+        <!-- チュートリアルゲーム画面 -->
+        <div id="tutorialGameScreen" class="screen hidden">
+            <div class="tutorial-guide" id="tutorialGuide">
+                <div class="guide-content">
+                    <p id="guideText">マス目の中から単語を見つけましょう！</p>
+                    <button id="nextGuideButton" class="guide-button">次へ</button>
+                    <button id="skipTutorialButton" class="skip-button">スキップ</button>
+                </div>
+            </div>
+            <div class="game-header">
+                <h2>チュートリアル</h2>
+            </div>
+            <div class="translations-display">
+                <h3>日本語訳</h3>
+                <div id="tutorialTranslationsList" class="translations-list"></div>
+            </div>
+            <div class="grid-container">
+                <div id="tutorialGrid" class="grid"></div>
+            </div>
+            <div class="found-words">
+                <h3>見つけた単語</h3>
+                <div id="tutorialFoundWordsList" class="found-words-list"></div>
+            </div>
+        </div>
+
         <!-- 難易度選択画面 -->
-        <div id="difficultyScreen" class="screen">
+        <div id="difficultyScreen" class="screen hidden">
             <h1>アルファベットマス</h1>
             <div class="difficulty-selection">
                 <h2>TOEIC点数帯を選択してください</h2>

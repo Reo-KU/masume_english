@@ -209,6 +209,23 @@ const difficultyData = {
 let currentDifficulty = null;
 let stages = [];
 
+// チュートリアルデータ
+const tutorialData = {
+    words: [
+        { english: 'CAT', japanese: '猫' },
+        { english: 'DOG', japanese: '犬' },
+        { english: 'SUN', japanese: '太陽' }
+    ]
+};
+
+// チュートリアル状態
+let tutorialStep = 0;
+let tutorialFoundWords = new Set();
+let tutorialGrid = [];
+let tutorialGridSize = 6;
+let tutorialPlacedWords = [];
+let isTutorialMode = false;
+
 // ゲーム状態
 let currentStage = 0;
 let grid = [];
@@ -219,6 +236,16 @@ let isSelecting = false;
 let isAnswerVisible = false;
 
 // DOM要素
+const tutorialScreen = document.getElementById('tutorialScreen');
+const tutorialGameScreen = document.getElementById('tutorialGameScreen');
+const startTutorialButton = document.getElementById('startTutorialButton');
+const tutorialGuide = document.getElementById('tutorialGuide');
+const guideText = document.getElementById('guideText');
+const nextGuideButton = document.getElementById('nextGuideButton');
+const skipTutorialButton = document.getElementById('skipTutorialButton');
+const tutorialGrid = document.getElementById('tutorialGrid');
+const tutorialTranslationsList = document.getElementById('tutorialTranslationsList');
+const tutorialFoundWordsList = document.getElementById('tutorialFoundWordsList');
 const difficultyScreen = document.getElementById('difficultyScreen');
 const startScreen = document.getElementById('startScreen');
 const gameScreen = document.getElementById('gameScreen');
@@ -238,8 +265,24 @@ const gameDifficultySpan = document.getElementById('gameDifficulty');
 const difficultyButtons = document.querySelectorAll('.difficulty-button');
 const showAnswerButton = document.getElementById('showAnswerButton');
 
+// チュートリアルのガイドテキスト
+const tutorialGuides = [
+    'マス目の中に隠された単語を見つけましょう！',
+    'マウス（または指）でドラッグして単語を選択します。',
+    '単語は縦、横、斜めのいずれかの方向に並んでいます。',
+    '「CAT（猫）」を見つけてみましょう！',
+    '見つけた単語は緑色で表示されます。',
+    'すべての単語を見つけるとクリアです！',
+    'チュートリアル完了！難易度を選択して本番に挑戦しましょう！'
+];
+
 // 初期化
 function init() {
+    // チュートリアルボタン
+    startTutorialButton.addEventListener('click', startTutorial);
+    nextGuideButton.addEventListener('click', nextTutorialStep);
+    skipTutorialButton.addEventListener('click', skipTutorial);
+    
     // 難易度選択ボタンにイベントリスナーを追加
     difficultyButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -256,6 +299,313 @@ function init() {
     
     // グリッド外でのマウスアップを検知
     document.addEventListener('mouseup', endSelection);
+}
+
+// チュートリアル開始
+function startTutorial() {
+    tutorialScreen.classList.add('hidden');
+    tutorialGameScreen.classList.remove('hidden');
+    isTutorialMode = true;
+    tutorialStep = 0;
+    tutorialFoundWords.clear();
+    
+    generateTutorialGrid();
+    displayTutorialTranslations();
+    updateTutorialFoundWords();
+    showTutorialGuide(0);
+}
+
+// チュートリアルグリッド生成
+function generateTutorialGrid() {
+    tutorialGridSize = 6;
+    tutorialGrid = Array(tutorialGridSize).fill(null).map(() => Array(tutorialGridSize).fill(''));
+    tutorialPlacedWords = [];
+    const words = tutorialData.words.map(w => w.english.toUpperCase());
+    
+    const directions = [
+        { dx: 1, dy: 0 },   // 横
+        { dx: 0, dy: 1 },   // 縦
+        { dx: 1, dy: 1 }    // 斜め
+    ];
+    
+    // CATを横に配置
+    placeTutorialWord('CAT', 0, 0, 1, 0);
+    tutorialPlacedWords.push({
+        word: 'CAT',
+        cells: getWordCells('CAT', 0, 0, 1, 0)
+    });
+    
+    // DOGを縦に配置
+    placeTutorialWord('DOG', 2, 0, 0, 1);
+    tutorialPlacedWords.push({
+        word: 'DOG',
+        cells: getWordCells('DOG', 2, 0, 0, 1)
+    });
+    
+    // SUNを斜めに配置
+    placeTutorialWord('SUN', 0, 3, 1, 1);
+    tutorialPlacedWords.push({
+        word: 'SUN',
+        cells: getWordCells('SUN', 0, 3, 1, 1)
+    });
+    
+    // 空きマスを埋める
+    fillTutorialEmptyCells();
+    renderTutorialGrid();
+}
+
+function placeTutorialWord(word, x, y, dx, dy) {
+    for (let i = 0; i < word.length; i++) {
+        const newX = x + i * dx;
+        const newY = y + i * dy;
+        tutorialGrid[newY][newX] = word[i];
+    }
+}
+
+function fillTutorialEmptyCells() {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    for (let y = 0; y < tutorialGridSize; y++) {
+        for (let x = 0; x < tutorialGridSize; x++) {
+            if (tutorialGrid[y][x] === '') {
+                tutorialGrid[y][x] = alphabet[Math.floor(Math.random() * alphabet.length)];
+            }
+        }
+    }
+}
+
+function renderTutorialGrid() {
+    tutorialGrid.innerHTML = '';
+    tutorialGrid.style.gridTemplateColumns = `repeat(${tutorialGridSize}, 1fr)`;
+    
+    for (let y = 0; y < tutorialGridSize; y++) {
+        for (let x = 0; x < tutorialGridSize; x++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.textContent = tutorialGrid[y][x];
+            cell.dataset.x = x;
+            cell.dataset.y = y;
+            
+            // マウスイベント
+            cell.addEventListener('mousedown', (e) => startTutorialSelection(e, x, y));
+            cell.addEventListener('mouseenter', (e) => continueTutorialSelection(e, x, y));
+            
+            // タッチイベント
+            cell.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startTutorialSelection(e, x, y);
+            }, { passive: false });
+            
+            tutorialGrid.appendChild(cell);
+        }
+    }
+    
+    // グリッド全体にタッチイベント
+    tutorialGrid.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        handleTutorialTouchMove(e);
+    }, { passive: false });
+    
+    tutorialGrid.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        endTutorialSelection();
+    }, { passive: false });
+}
+
+function startTutorialSelection(e, x, y) {
+    if (e.type === 'mousedown') {
+        e.preventDefault();
+    }
+    isSelecting = true;
+    selectedCells = [{ x, y }];
+    updateTutorialSelection();
+}
+
+function continueTutorialSelection(e, x, y) {
+    if (!isSelecting) return;
+    if (e.type === 'mouseenter' || e.type === 'touchmove') {
+        e.preventDefault();
+    }
+    
+    const lastCell = selectedCells[selectedCells.length - 1];
+    const dx = x - lastCell.x;
+    const dy = y - lastCell.y;
+    
+    if (selectedCells.length === 1) {
+        if (!selectedCells.some(c => c.x === x && c.y === y)) {
+            selectedCells.push({ x, y });
+            updateTutorialSelection();
+        }
+    } else {
+        const firstDx = selectedCells[1].x - selectedCells[0].x;
+        const firstDy = selectedCells[1].y - selectedCells[0].y;
+        
+        if (dx === firstDx && dy === firstDy && 
+            (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) &&
+            !selectedCells.some(c => c.x === x && c.y === y)) {
+            selectedCells.push({ x, y });
+            updateTutorialSelection();
+        }
+    }
+}
+
+function handleTutorialTouchMove(e) {
+    if (!isSelecting) return;
+    e.preventDefault();
+    
+    const touch = e.touches ? e.touches[0] : null;
+    if (!touch) return;
+    
+    const rect = tutorialGrid.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    const cellWidth = rect.width / tutorialGridSize;
+    const cellHeight = rect.height / tutorialGridSize;
+    
+    const cellX = Math.floor(x / cellWidth);
+    const cellY = Math.floor(y / cellHeight);
+    
+    if (cellX >= 0 && cellX < tutorialGridSize && cellY >= 0 && cellY < tutorialGridSize) {
+        continueTutorialSelection(e, cellX, cellY);
+    }
+}
+
+function endTutorialSelection() {
+    if (!isSelecting) return;
+    isSelecting = false;
+    
+    if (selectedCells.length > 0) {
+        checkTutorialWord();
+    }
+    
+    selectedCells = [];
+    updateTutorialSelection();
+}
+
+function updateTutorialSelection() {
+    const cells = tutorialGrid.querySelectorAll('.cell');
+    cells.forEach(cell => {
+        cell.classList.remove('selected');
+    });
+    
+    selectedCells.forEach(({ x, y }) => {
+        const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+        if (cell && !cell.classList.contains('found')) {
+            cell.classList.add('selected');
+        }
+    });
+}
+
+function checkTutorialWord() {
+    if (selectedCells.length < 2) return;
+    
+    const selectedWord = selectedCells
+        .map(({ x, y }) => tutorialGrid[y][x])
+        .join('');
+    
+    const reversedWord = selectedWord.split('').reverse().join('');
+    
+    tutorialData.words.forEach(word => {
+        const upperWord = word.english.toUpperCase();
+        if ((selectedWord === upperWord || reversedWord === upperWord) && 
+            !tutorialFoundWords.has(upperWord)) {
+            tutorialFoundWords.add(upperWord);
+            markTutorialWordAsFound();
+            updateTutorialFoundWords();
+            
+            // ガイドを更新
+            if (tutorialFoundWords.size === 1 && tutorialStep < 4) {
+                setTimeout(() => showTutorialGuide(4), 500);
+            } else if (tutorialFoundWords.size === tutorialData.words.length && tutorialStep < 6) {
+                setTimeout(() => showTutorialGuide(6), 500);
+            }
+        }
+    });
+}
+
+function markTutorialWordAsFound() {
+    tutorialData.words.forEach(word => {
+        const upperWord = word.english.toUpperCase();
+        if (tutorialFoundWords.has(upperWord)) {
+            const placedWord = tutorialPlacedWords.find(pw => pw.word === upperWord);
+            if (placedWord) {
+                placedWord.cells.forEach(({ x, y }) => {
+                    const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                    if (cell) {
+                        cell.classList.add('found');
+                        cell.classList.remove('selected');
+                    }
+                });
+            }
+        }
+    });
+}
+
+function displayTutorialTranslations() {
+    tutorialTranslationsList.innerHTML = '';
+    tutorialData.words.forEach(word => {
+        const translationItem = document.createElement('div');
+        translationItem.className = 'translation-item';
+        translationItem.textContent = word.japanese;
+        tutorialTranslationsList.appendChild(translationItem);
+    });
+}
+
+function updateTutorialFoundWords() {
+    tutorialFoundWordsList.innerHTML = '';
+    tutorialTranslationsList.innerHTML = '';
+    
+    tutorialData.words.forEach(word => {
+        const upperWord = word.english.toUpperCase();
+        if (tutorialFoundWords.has(upperWord)) {
+            const foundItem = document.createElement('div');
+            foundItem.className = 'found-word-item';
+            foundItem.textContent = word.english;
+            tutorialFoundWordsList.appendChild(foundItem);
+        }
+        
+        const translationItem = document.createElement('div');
+        translationItem.className = 'translation-item';
+        if (tutorialFoundWords.has(upperWord)) {
+            translationItem.classList.add('found');
+        }
+        translationItem.textContent = word.japanese;
+        tutorialTranslationsList.appendChild(translationItem);
+    });
+}
+
+function showTutorialGuide(step) {
+    tutorialStep = step;
+    if (step < tutorialGuides.length) {
+        guideText.textContent = tutorialGuides[step];
+        tutorialGuide.classList.remove('hidden');
+        
+        if (step === 6) {
+            nextGuideButton.textContent = '難易度選択へ';
+        } else {
+            nextGuideButton.textContent = '次へ';
+        }
+    }
+}
+
+function nextTutorialStep() {
+    if (tutorialStep < tutorialGuides.length - 1) {
+        tutorialStep++;
+        showTutorialGuide(tutorialStep);
+    } else {
+        // チュートリアル完了
+        completeTutorial();
+    }
+}
+
+function skipTutorial() {
+    completeTutorial();
+}
+
+function completeTutorial() {
+    tutorialGameScreen.classList.add('hidden');
+    difficultyScreen.classList.remove('hidden');
+    isTutorialMode = false;
 }
 
 // 難易度選択
@@ -549,6 +899,7 @@ function placeWord(word, x, y, dx, dy) {
 }
 
 // 単語のセル位置を取得
+// 単語のセル位置を取得（共通関数）
 function getWordCells(word, x, y, dx, dy) {
     const cells = [];
     for (let i = 0; i < word.length; i++) {
@@ -589,14 +940,71 @@ function renderGrid(placedWords) {
             cell.addEventListener('mousedown', (e) => startSelection(e, x, y));
             cell.addEventListener('mouseenter', (e) => continueSelection(e, x, y));
             
+            // タッチイベント（スマホ対応）
+            cell.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startSelection(e, x, y);
+            }, { passive: false });
+            
             gridElement.appendChild(cell);
         }
+    }
+    
+    // グリッド全体にタッチ移動と終了イベントを追加
+    gridElement.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        handleTouchMove(e);
+    }, { passive: false });
+    
+    gridElement.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        endSelection();
+    }, { passive: false });
+    
+    gridElement.addEventListener('touchcancel', (e) => {
+        e.preventDefault();
+        endSelection();
+    }, { passive: false });
+}
+
+// タッチ位置からセル座標を取得
+function getCellFromTouch(e) {
+    const touch = e.touches ? e.touches[0] : e.changedTouches ? e.changedTouches[0] : null;
+    if (!touch) return null;
+    
+    const rect = gridElement.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    // グリッドのセルサイズを計算
+    const cellWidth = rect.width / gridSize;
+    const cellHeight = rect.height / gridSize;
+    
+    const cellX = Math.floor(x / cellWidth);
+    const cellY = Math.floor(y / cellHeight);
+    
+    if (cellX >= 0 && cellX < gridSize && cellY >= 0 && cellY < gridSize) {
+        return { x: cellX, y: cellY };
+    }
+    return null;
+}
+
+// タッチ移動の処理
+function handleTouchMove(e) {
+    if (!isSelecting) return;
+    e.preventDefault();
+    
+    const cellPos = getCellFromTouch(e);
+    if (cellPos) {
+        continueSelection(e, cellPos.x, cellPos.y);
     }
 }
 
 // 選択開始
 function startSelection(e, x, y) {
-    e.preventDefault();
+    if (e.type === 'mousedown') {
+        e.preventDefault();
+    }
     isSelecting = true;
     selectedCells = [{ x, y }];
     updateSelection();
@@ -605,7 +1013,9 @@ function startSelection(e, x, y) {
 // 選択継続
 function continueSelection(e, x, y) {
     if (!isSelecting) return;
-    e.preventDefault();
+    if (e.type === 'mouseenter' || e.type === 'touchmove') {
+        e.preventDefault();
+    }
     
     const lastCell = selectedCells[selectedCells.length - 1];
     const dx = x - lastCell.x;
