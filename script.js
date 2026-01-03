@@ -365,6 +365,9 @@ function renderTutorialGrid() {
     tutorialGrid.innerHTML = '';
     tutorialGrid.style.gridTemplateColumns = `repeat(${tutorialGridSize}, 1fr)`;
     
+    // スマホ対応：グリッドサイズを画面に合わせて調整
+    adjustTutorialGridSize();
+    
     for (let y = 0; y < tutorialGridSize; y++) {
         for (let x = 0; x < tutorialGridSize; x++) {
             const cell = document.createElement('div');
@@ -397,6 +400,28 @@ function renderTutorialGrid() {
         e.preventDefault();
         endTutorialSelection();
     }, { passive: false });
+    
+    // リサイズ時にグリッドサイズを再調整
+    window.addEventListener('resize', adjustTutorialGridSize);
+}
+
+// チュートリアルグリッドサイズを画面に合わせて調整
+function adjustTutorialGridSize() {
+    const container = document.querySelector('.grid-container');
+    if (!container || !tutorialGrid) return;
+    
+    const containerWidth = container.clientWidth;
+    const availableWidth = containerWidth - 20; // パディングを考慮
+    const cellSize = Math.floor(availableWidth / tutorialGridSize);
+    
+    // セルの最小サイズを確保
+    const minCellSize = window.innerWidth <= 480 ? 22 : 25;
+    if (cellSize < minCellSize) {
+        const maxGridWidth = minCellSize * tutorialGridSize;
+        tutorialGrid.style.maxWidth = `${maxGridWidth}px`;
+    } else {
+        tutorialGrid.style.maxWidth = '100%';
+    }
 }
 
 function startTutorialSelection(e, x, y) {
@@ -1286,6 +1311,9 @@ function renderGrid(placedWords) {
     // CSSグリッドの列数を動的に設定
     gridElement.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     
+    // スマホ対応：グリッドサイズを画面に合わせて調整
+    adjustGridSize();
+    
     for (let y = 0; y < gridSize; y++) {
         for (let x = 0; x < gridSize; x++) {
             const cell = document.createElement('div');
@@ -1323,6 +1351,28 @@ function renderGrid(placedWords) {
         e.preventDefault();
         endSelection();
     }, { passive: false });
+    
+    // リサイズ時にグリッドサイズを再調整
+    window.addEventListener('resize', adjustGridSize);
+}
+
+// グリッドサイズを画面に合わせて調整
+function adjustGridSize() {
+    const container = document.querySelector('.grid-container');
+    if (!container || !gridElement) return;
+    
+    const containerWidth = container.clientWidth;
+    const availableWidth = containerWidth - 20; // パディングを考慮
+    const cellSize = Math.floor(availableWidth / gridSize);
+    
+    // セルの最小サイズを確保
+    const minCellSize = window.innerWidth <= 480 ? 22 : 25;
+    if (cellSize < minCellSize) {
+        const maxGridWidth = minCellSize * gridSize;
+        gridElement.style.maxWidth = `${maxGridWidth}px`;
+    } else {
+        gridElement.style.maxWidth = '100%';
+    }
 }
 
 // タッチ位置からセル座標を取得

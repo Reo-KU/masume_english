@@ -1,3 +1,4 @@
+
 * {
     margin: 0;
     padding: 0;
@@ -360,6 +361,9 @@ h3 {
     touch-action: none;
     -webkit-overflow-scrolling: touch;
     overflow: hidden;
+    /* スマホ対応：最大幅を制限 */
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .grid {
@@ -374,6 +378,8 @@ h3 {
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
+    /* スマホ対応：グリッドサイズを画面に合わせて調整 */
+    box-sizing: border-box;
 }
 
 .cell {
@@ -395,6 +401,8 @@ h3 {
     touch-action: none;
     transition: all 0.2s;
     border-radius: 3px;
+    /* スマホ対応：セルサイズを画面に合わせて調整 */
+    box-sizing: border-box;
 }
 
 .cell:hover {
@@ -534,31 +542,78 @@ h3 {
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
     body {
-        padding: 10px;
+        padding: 5px;
     }
 
     .container {
-        padding: 15px;
+        padding: 10px;
         max-width: 100%;
     }
 
     h1 {
-        font-size: 1.8em;
+        font-size: 1.5em;
+        margin-bottom: 10px;
     }
 
     h2 {
-        font-size: 1.4em;
+        font-size: 1.2em;
+        margin-bottom: 10px;
+    }
+
+    h3 {
+        font-size: 1em;
+        margin-bottom: 8px;
     }
 
     .cell {
-        min-width: 28px;
-        min-height: 28px;
-        font-size: 0.85em;
+        min-width: 25px;
+        min-height: 25px;
+        font-size: 0.75em;
     }
 
     .grid {
         gap: 1px;
         padding: 1px;
+        max-width: calc(100vw - 30px);
+    }
+
+    .grid-container {
+        margin-bottom: 10px;
+        padding: 0 5px;
+    }
+
+    .game-header {
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+    .translations-display {
+        margin-bottom: 10px;
+    }
+
+    .translations-list {
+        padding: 10px;
+        gap: 8px;
+    }
+
+    .translation-item {
+        padding: 6px 12px;
+        font-size: 0.85em;
+    }
+
+    .found-words {
+        margin-bottom: 10px;
+    }
+
+    .found-words-list {
+        padding: 10px;
+        gap: 8px;
+        min-height: 50px;
+    }
+
+    .found-word-item {
+        padding: 6px 12px;
+        font-size: 0.85em;
     }
 
     .difficulty-buttons {
@@ -594,17 +649,132 @@ h3 {
     }
 
     .tutorial-guide {
-        padding: 15px;
+        padding: 12px;
+        margin-bottom: 10px;
     }
 
     .guide-content p {
-        font-size: 1em;
+        font-size: 0.95em;
+        margin-bottom: 12px;
     }
 
     .guide-button,
     .skip-button {
-        padding: 8px 20px;
+        padding: 8px 18px;
+        font-size: 0.85em;
+    }
+
+    .tutorial-intro {
+        padding: 10px;
+    }
+
+    .tutorial-intro p {
+        font-size: 0.95em;
+        margin: 10px 0;
+    }
+
+    .words-display {
+        padding: 15px;
+        gap: 10px;
+        margin: 15px 0;
+    }
+
+    .word-item {
+        padding: 10px 15px;
+    }
+
+    .word-item .english {
+        font-size: 1.1em;
+    }
+
+    .word-item .japanese {
+        font-size: 1em;
+    }
+}
+
+/* スマホ縦向き専用のスタイル */
+@media (max-width: 480px) and (orientation: portrait) {
+    body {
+        padding: 3px;
+    }
+
+    .container {
+        padding: 8px;
+    }
+
+    h1 {
+        font-size: 1.3em;
+        margin-bottom: 8px;
+    }
+
+    h2 {
+        font-size: 1.1em;
+        margin-bottom: 8px;
+    }
+
+    h3 {
         font-size: 0.9em;
+        margin-bottom: 6px;
+    }
+
+    .cell {
+        min-width: 22px;
+        min-height: 22px;
+        font-size: 0.7em;
+    }
+
+    .grid {
+        max-width: calc(100vw - 20px);
+    }
+
+    .grid-container {
+        margin-bottom: 8px;
+        padding: 0 3px;
+    }
+
+    .game-header {
+        margin-bottom: 8px;
+    }
+
+    .translations-display {
+        margin-bottom: 8px;
+    }
+
+    .translations-list {
+        padding: 8px;
+        gap: 6px;
+    }
+
+    .translation-item {
+        padding: 5px 10px;
+        font-size: 0.8em;
+    }
+
+    .found-words-list {
+        padding: 8px;
+        gap: 6px;
+        min-height: 40px;
+    }
+
+    .found-word-item {
+        padding: 5px 10px;
+        font-size: 0.8em;
+    }
+
+    .tutorial-guide {
+        padding: 10px;
+        margin-bottom: 8px;
+    }
+
+    .guide-content p {
+        font-size: 0.9em;
+        margin-bottom: 10px;
+    }
+
+    .guide-button,
+    .skip-button {
+        padding: 6px 15px;
+        font-size: 0.8em;
     }
 }
 
