@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アルファベットマス - 単語検索ゲーム</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 難易度選択画面 -->
+        <div id="difficultyScreen" class="screen">
+            <h1>アルファベットマス</h1>
+            <div class="difficulty-selection">
+                <h2>TOEIC点数帯を選択してください</h2>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-button" data-level="300-400">
+                        <div class="difficulty-title">300-400点</div>
+                        <div class="difficulty-subtitle">初級</div>
+                    </button>
+                    <button class="difficulty-button" data-level="400-500">
+                        <div class="difficulty-title">400-500点</div>
+                        <div class="difficulty-subtitle">初級〜中級</div>
+                    </button>
+                    <button class="difficulty-button" data-level="500-600">
+                        <div class="difficulty-title">500-600点</div>
+                        <div class="difficulty-subtitle">中級</div>
+                    </button>
+                    <button class="difficulty-button" data-level="600-700">
+                        <div class="difficulty-title">600-700点</div>
+                        <div class="difficulty-subtitle">中級〜上級</div>
+                    </button>
+                    <button class="difficulty-button" data-level="700-800">
+                        <div class="difficulty-title">700-800点</div>
+                        <div class="difficulty-subtitle">上級</div>
+                    </button>
+                    <button class="difficulty-button" data-level="800-900">
+                        <div class="difficulty-title">800-900点</div>
+                        <div class="difficulty-subtitle">上級〜最上級</div>
+                    </button>
+                    <button class="difficulty-button" data-level="900-990">
+                        <div class="difficulty-title">900-990点</div>
+                        <div class="difficulty-subtitle">最上級</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ゲーム開始画面 -->
+        <div id="startScreen" class="screen hidden">
+            <h1>アルファベットマス</h1>
+            <div class="stage-info">
+                <div class="difficulty-info">
+                    <span id="selectedDifficulty" class="difficulty-badge"></span>
+                </div>
+                <h2>ステージ <span id="currentStage">1</span></h2>
+                <div class="words-list">
+                    <h3>お題の単語</h3>
+                    <div id="wordsDisplay" class="words-display"></div>
+                </div>
+            </div>
+            <div class="button-group">
+                <button id="backToDifficultyButton" class="back-button">難易度選択に戻る</button>
+                <button id="startButton" class="start-button">ゲームスタート</button>
+            </div>
+        </div>
+
+        <!-- ゲーム画面 -->
+        <div id="gameScreen" class="screen hidden">
+            <div class="game-header">
+                <div>
+                    <span id="gameDifficulty" class="difficulty-badge"></span>
+                    <h2>ステージ <span id="gameStage">1</span></h2>
+                </div>
+                <div class="header-buttons">
+                    <button id="showAnswerButton" class="answer-button">答えを見る</button>
+                    <button id="backButton" class="back-button">戻る</button>
+                </div>
+            </div>
+            <div class="translations-display">
+                <h3>日本語訳</h3>
+                <div id="translationsList" class="translations-list"></div>
+            </div>
+            <div class="grid-container">
+                <div id="grid" class="grid"></div>
+            </div>
+            <div class="found-words">
+                <h3>見つけた単語</h3>
+                <div id="foundWordsList" class="found-words-list"></div>
+            </div>
+            <div id="clearMessage" class="clear-message hidden">
+                <h2>🎉 クリア！ 🎉</h2>
+                <button id="nextStageButton" class="next-button">次のステージへ</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+

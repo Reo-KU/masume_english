@@ -1,0 +1,424 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+}
+
+.screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+h1 {
+    color: #667eea;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+h2 {
+    color: #333;
+    font-size: 1.8em;
+    margin-bottom: 15px;
+}
+
+h3 {
+    color: #555;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+/* 難易度選択画面 */
+.difficulty-selection {
+    width: 100%;
+    text-align: center;
+}
+
+.difficulty-selection h2 {
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.difficulty-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    width: 100%;
+    max-width: 800px;
+}
+
+.difficulty-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 25px 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.difficulty-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+.difficulty-button:active {
+    transform: translateY(-2px);
+}
+
+.difficulty-title {
+    font-size: 1.4em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.difficulty-subtitle {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.difficulty-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.difficulty-info {
+    margin-bottom: 15px;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* 開始画面 */
+.stage-info {
+    width: 100%;
+    text-align: center;
+}
+
+.words-display {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.word-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.word-item .english {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.word-item .japanese {
+    font-size: 1.1em;
+    color: #666;
+}
+
+.start-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 50px;
+    font-size: 1.3em;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.start-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(102, 126, 234, 0.6);
+}
+
+.start-button:active {
+    transform: translateY(0);
+}
+
+/* ゲーム画面 */
+.game-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.game-header > div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.answer-button {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 10px rgba(255, 107, 107, 0.3);
+}
+
+.answer-button:hover {
+    background: linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.5);
+}
+
+.answer-button:active {
+    transform: translateY(0);
+}
+
+.back-button {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.back-button:hover {
+    background: #5a6268;
+}
+
+.translations-display {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.translations-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.translation-item {
+    padding: 8px 15px;
+    background: white;
+    border-radius: 20px;
+    font-size: 0.95em;
+    color: #666;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s;
+}
+
+.translation-item.found {
+    background: #28a745;
+    color: white;
+    border-color: #28a745;
+    text-decoration: line-through;
+}
+
+.grid-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.grid {
+    display: grid;
+    gap: 2px;
+    background: #333;
+    padding: 2px;
+    border-radius: 5px;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.cell {
+    min-width: 35px;
+    min-height: 35px;
+    width: 100%;
+    aspect-ratio: 1;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(0.9em, 2vw, 1.3em);
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s;
+    border-radius: 3px;
+}
+
+.cell:hover {
+    background: #e3f2fd;
+    transform: scale(1.05);
+}
+
+.cell.selected {
+    background: #ffeb3b;
+    color: #333;
+}
+
+.cell.found {
+    background: #4caf50;
+    color: white;
+}
+
+.cell.answer {
+    background: #ff9800;
+    color: white;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.cell.answer.found {
+    background: #4caf50;
+    animation: none;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.found-words {
+    width: 100%;
+}
+
+.found-words-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    min-height: 60px;
+}
+
+.found-word-item {
+    padding: 8px 15px;
+    background: #28a745;
+    color: white;
+    border-radius: 20px;
+    font-size: 0.95em;
+    font-weight: bold;
+}
+
+.clear-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    z-index: 1000;
+}
+
+.clear-message h2 {
+    color: #28a745;
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+.next-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1em;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.next-button:hover {
+    transform: translateY(-2px);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    .cell {
+        min-width: 30px;
+        min-height: 30px;
+        font-size: 0.9em;
+    }
+
+    .grid {
+        gap: 1px;
+        padding: 1px;
+    }
+}
+
