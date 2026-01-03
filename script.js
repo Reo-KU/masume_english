@@ -212,9 +212,7 @@ let stages = [];
 // チュートリアルデータ
 const tutorialData = {
     words: [
-        { english: 'CAT', japanese: '猫' },
-        { english: 'DOG', japanese: '犬' },
-        { english: 'SUN', japanese: '太陽' }
+        { english: 'CAT', japanese: '猫' }
     ]
 };
 
@@ -272,9 +270,13 @@ const tutorialGuides = [
     '単語は縦、横、斜めのいずれかの方向に並んでいます。',
     '「CAT（猫）」を見つけてみましょう！',
     '見つけた単語は緑色で表示されます。',
-    'すべての単語を見つけるとクリアです！',
+    'CATを見つけるとクリアです！',
     'チュートリアル完了！難易度を選択して本番に挑戦しましょう！'
 ];
+
+// デモンストレーション用の変数
+let demoAnimationId = null;
+let isDemoPlaying = false;
 
 // 初期化
 function init() {
@@ -333,20 +335,6 @@ function generateTutorialGrid() {
     tutorialPlacedWords.push({
         word: 'CAT',
         cells: getWordCells('CAT', 0, 0, 1, 0)
-    });
-    
-    // DOGを縦に配置
-    placeTutorialWord('DOG', 2, 0, 0, 1);
-    tutorialPlacedWords.push({
-        word: 'DOG',
-        cells: getWordCells('DOG', 2, 0, 0, 1)
-    });
-    
-    // SUNを斜めに配置
-    placeTutorialWord('SUN', 0, 3, 1, 1);
-    tutorialPlacedWords.push({
-        word: 'SUN',
-        cells: getWordCells('SUN', 0, 3, 1, 1)
     });
     
     // 空きマスを埋める
@@ -576,6 +564,10 @@ function updateTutorialFoundWords() {
 
 function showTutorialGuide(step) {
     tutorialStep = step;
+    
+    // 前のデモを停止
+    stopDemo();
+    
     if (step < tutorialGuides.length) {
         guideText.textContent = tutorialGuides[step];
         tutorialGuide.classList.remove('hidden');
@@ -585,10 +577,376 @@ function showTutorialGuide(step) {
         } else {
             nextGuideButton.textContent = '次へ';
         }
+        
+        // 各ステップに応じたデモを開始
+        startTutorialDemo(step);
     }
 }
 
+// デモンストレーションを開始
+function startTutorialDemo(step) {
+    if (isDemoPlaying) return;
+    
+    // 少し遅延させてからデモを開始（説明が表示された後）
+    setTimeout(() => {
+        switch(step) {
+            case 0:
+                // グリッド全体を強調表示して、単語が隠れていることを示す
+                highlightTutorialGrid();
+                break;
+            case 1:
+                // マウスドラッグのデモ（実際にセルを選択する様子）
+                demoMouseDrag();
+                break;
+            case 2:
+                // 単語の方向を示す（横、縦、斜めを順番に）
+                demoWordDirections();
+                break;
+            case 3:
+                // CATを選択するデモ（実際に操作している様子）
+                demoSelectWord('CAT');
+                break;
+            case 4:
+                // 見つけた単語を緑色で表示するデモ
+                demoFoundWord('CAT');
+                break;
+            case 5:
+                // すべての単語を見つけた状態をデモ
+                demoAllWordsFound();
+                break;
+        }
+    }, 500);
+}
+
+// デモを停止
+function stopDemo() {
+    if (demoAnimationId) {
+        clearTimeout(demoAnimationId);
+        demoAnimationId = null;
+    }
+    isDemoPlaying = false;
+    
+    // すべてのハイライトをクリア
+    const cells = tutorialGrid.querySelectorAll('.cell');
+    cells.forEach(cell => {
+        cell.classList.remove('demo-highlight', 'demo-selected', 'demo-found');
+    });
+}
+
+// グリッド全体を強調表示（単語が隠れていることを示す）
+function highlightTutorialGrid() {
+    isDemoPlaying = true;
+    
+    // まず全体を一度ハイライト
+    const cells = tutorialGrid.querySelectorAll('.cell');
+    cells.forEach((cell, index) => {
+        setTimeout(() => {
+            cell.classList.add('demo-highlight');
+            setTimeout(() => {
+                cell.classList.remove('demo-highlight');
+            }, 300);
+        }, index * 15);
+    });
+    
+    // その後、単語の位置を少し示す
+    demoAnimationId = setTimeout(() => {
+        tutorialPlacedWords.forEach((placedWord, wordIndex) => {
+            placedWord.cells.forEach(({ x, y }, cellIndex) => {
+                setTimeout(() => {
+                    const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                    if (cell) {
+                        cell.classList.add('demo-highlight');
+                        setTimeout(() => {
+                            cell.classList.remove('demo-highlight');
+                        }, 400);
+                    }
+                }, (wordIndex * 500) + (cellIndex * 100));
+            });
+        });
+        
+        // 繰り返し
+        demoAnimationId = setTimeout(() => {
+            highlightTutorialGrid();
+        }, 3000);
+    }, 1000);
+}
+
+// マウスドラッグのデモ（実際に操作している様子）
+function demoMouseDrag() {
+    isDemoPlaying = true;
+    // CATを選択するデモ（実際の配置位置を使用）
+    const catWord = tutorialPlacedWords.find(pw => pw.word === 'CAT');
+    if (!catWord) return;
+    
+    const demoCells = catWord.cells;
+    
+    let currentIndex = 0;
+    
+    function animate() {
+        if (currentIndex < demoCells.length) {
+            const { x, y } = demoCells[currentIndex];
+            const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+            if (cell) {
+                // 前のセルも選択状態を保持（ドラッグ中の様子）
+                if (currentIndex > 0) {
+                    const prevCell = tutorialGrid.querySelector(`[data-x="${demoCells[currentIndex - 1].x}"][data-y="${demoCells[currentIndex - 1].y}"]`);
+                    if (prevCell) {
+                        prevCell.classList.add('demo-selected');
+                    }
+                }
+                
+                cell.classList.add('demo-selected');
+                currentIndex++;
+                demoAnimationId = setTimeout(animate, 250);
+            } else {
+                currentIndex++;
+                demoAnimationId = setTimeout(animate, 250);
+            }
+        } else {
+            // すべて選択された状態を少し保持
+            demoAnimationId = setTimeout(() => {
+                // すべてのセルをクリア
+                demoCells.forEach(({ x, y }) => {
+                    const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                    if (cell) {
+                        cell.classList.remove('demo-selected');
+                    }
+                });
+                // 繰り返し
+                currentIndex = 0;
+                demoAnimationId = setTimeout(() => {
+                    demoMouseDrag();
+                }, 1500);
+            }, 800);
+        }
+    }
+    
+    animate();
+}
+
+// 単語の方向を示す（CATを強調）
+function demoWordDirections() {
+    isDemoPlaying = true;
+    
+    // 実際の配置位置を使用
+    const catWord = tutorialPlacedWords.find(pw => pw.word === 'CAT');
+    
+    if (!catWord) return;
+    
+    // CATを強調
+    highlightWordCells(catWord.cells, () => {
+        // 繰り返し
+        demoAnimationId = setTimeout(() => {
+            demoWordDirections();
+        }, 1500);
+    });
+}
+
+// 単語のセルを順番にハイライト
+function highlightWordCells(cells, callback) {
+    let index = 0;
+    
+    function animate() {
+        if (index < cells.length) {
+            const { x, y } = cells[index];
+            const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+            if (cell) {
+                // 前のセルもハイライトを保持
+                if (index > 0) {
+                    const prevCell = tutorialGrid.querySelector(`[data-x="${cells[index - 1].x}"][data-y="${cells[index - 1].y}"]`);
+                    if (prevCell) {
+                        prevCell.classList.add('demo-highlight');
+                    }
+                }
+                cell.classList.add('demo-highlight');
+                index++;
+                demoAnimationId = setTimeout(animate, 250);
+            } else {
+                index++;
+                demoAnimationId = setTimeout(animate, 250);
+            }
+        } else {
+            // すべてのセルをハイライトした後、少し保持してからクリア
+            demoAnimationId = setTimeout(() => {
+                cells.forEach(({ x, y }) => {
+                    const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                    if (cell) {
+                        cell.classList.remove('demo-highlight');
+                    }
+                });
+                if (callback) {
+                    callback();
+                }
+            }, 600);
+        }
+    }
+    
+    animate();
+}
+
+
+// 単語を選択するデモ
+function demoSelectWord(word) {
+    isDemoPlaying = true;
+    const placedWord = tutorialPlacedWords.find(pw => pw.word === word);
+    if (!placedWord) return;
+    
+    let index = 0;
+    
+    function animate() {
+        if (index < placedWord.cells.length) {
+            const { x, y } = placedWord.cells[index];
+            const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+            if (cell && !cell.classList.contains('found')) {
+                // 前のセルの選択を保持
+                if (index > 0) {
+                    const prevCell = tutorialGrid.querySelector(`[data-x="${placedWord.cells[index - 1].x}"][data-y="${placedWord.cells[index - 1].y}"]`);
+                    if (prevCell) {
+                        prevCell.classList.add('demo-selected');
+                    }
+                }
+                cell.classList.add('demo-selected');
+                index++;
+                demoAnimationId = setTimeout(animate, 300);
+            } else {
+                index++;
+                demoAnimationId = setTimeout(animate, 300);
+            }
+        } else {
+            // すべて選択された状態を少し保持
+            demoAnimationId = setTimeout(() => {
+                // 選択をクリアして繰り返し
+                placedWord.cells.forEach(({ x, y }) => {
+                    const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                    if (cell) {
+                        cell.classList.remove('demo-selected');
+                    }
+                });
+                demoAnimationId = setTimeout(() => {
+                    demoSelectWord(word);
+                }, 1000);
+            }, 1000);
+        }
+    }
+    
+    animate();
+}
+
+// 見つけた単語を表示
+function demoFoundWord(word) {
+    isDemoPlaying = true;
+    const placedWord = tutorialPlacedWords.find(pw => pw.word === word);
+    if (!placedWord) return;
+    
+    // 単語を選択するアニメーション
+    let index = 0;
+    
+    function selectAnimate() {
+        if (index < placedWord.cells.length) {
+            const { x, y } = placedWord.cells[index];
+            const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+            if (cell) {
+                cell.classList.add('demo-selected');
+                index++;
+                demoAnimationId = setTimeout(selectAnimate, 200);
+            } else {
+                index++;
+                demoAnimationId = setTimeout(selectAnimate, 200);
+            }
+        } else {
+            // 選択完了後、緑色に変更
+            demoAnimationId = setTimeout(() => {
+                placedWord.cells.forEach(({ x, y }) => {
+                    const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                    if (cell) {
+                        cell.classList.remove('demo-selected');
+                        cell.classList.add('demo-found');
+                    }
+                });
+                
+                // 繰り返し
+                demoAnimationId = setTimeout(() => {
+                    placedWord.cells.forEach(({ x, y }) => {
+                        const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                        if (cell) {
+                            cell.classList.remove('demo-found');
+                        }
+                    });
+                    demoFoundWord(word);
+                }, 2000);
+            }, 500);
+        }
+    }
+    
+    selectAnimate();
+}
+
+// すべての単語を見つけた状態を表示
+function demoAllWordsFound() {
+    isDemoPlaying = true;
+    
+    // 各単語を順番に選択して見つける
+    let wordIndex = 0;
+    
+    function findNextWord() {
+        if (wordIndex < tutorialPlacedWords.length) {
+            const placedWord = tutorialPlacedWords[wordIndex];
+            let cellIndex = 0;
+            
+            function selectCells() {
+                if (cellIndex < placedWord.cells.length) {
+                    const { x, y } = placedWord.cells[cellIndex];
+                    const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                    if (cell) {
+                        cell.classList.add('demo-selected');
+                        cellIndex++;
+                        demoAnimationId = setTimeout(selectCells, 150);
+                    } else {
+                        cellIndex++;
+                        demoAnimationId = setTimeout(selectCells, 150);
+                    }
+                } else {
+                    // 選択完了後、緑色に変更
+                    demoAnimationId = setTimeout(() => {
+                        placedWord.cells.forEach(({ x, y }) => {
+                            const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                            if (cell) {
+                                cell.classList.remove('demo-selected');
+                                cell.classList.add('demo-found');
+                            }
+                        });
+                        
+                        wordIndex++;
+                        demoAnimationId = setTimeout(findNextWord, 500);
+                    }, 300);
+                }
+            }
+            
+            selectCells();
+        } else {
+            // すべて見つけた後、少し保持してから繰り返し
+            demoAnimationId = setTimeout(() => {
+                tutorialPlacedWords.forEach(placedWord => {
+                    placedWord.cells.forEach(({ x, y }) => {
+                        const cell = tutorialGrid.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                        if (cell) {
+                            cell.classList.remove('demo-found');
+                        }
+                    });
+                });
+                wordIndex = 0;
+                demoAnimationId = setTimeout(findNextWord, 1000);
+            }, 2000);
+        }
+    }
+    
+    findNextWord();
+}
+
 function nextTutorialStep() {
+    // デモを停止
+    stopDemo();
+    
     if (tutorialStep < tutorialGuides.length - 1) {
         tutorialStep++;
         showTutorialGuide(tutorialStep);
