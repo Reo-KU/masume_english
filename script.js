@@ -221,7 +221,7 @@ const tutorialData = {
 // チュートリアル状態
 let tutorialStep = 0;
 let tutorialFoundWords = new Set();
-let tutorialGrid = [];
+let tutorialGridData = []; // グリッドデータ（配列）
 let tutorialGridSize = 6;
 let tutorialPlacedWords = [];
 let isTutorialMode = false;
@@ -318,7 +318,7 @@ function startTutorial() {
 // チュートリアルグリッド生成
 function generateTutorialGrid() {
     tutorialGridSize = 6;
-    tutorialGrid = Array(tutorialGridSize).fill(null).map(() => Array(tutorialGridSize).fill(''));
+    tutorialGridData = Array(tutorialGridSize).fill(null).map(() => Array(tutorialGridSize).fill(''));
     tutorialPlacedWords = [];
     const words = tutorialData.words.map(w => w.english.toUpperCase());
     
@@ -358,7 +358,7 @@ function placeTutorialWord(word, x, y, dx, dy) {
     for (let i = 0; i < word.length; i++) {
         const newX = x + i * dx;
         const newY = y + i * dy;
-        tutorialGrid[newY][newX] = word[i];
+        tutorialGridData[newY][newX] = word[i];
     }
 }
 
@@ -366,8 +366,8 @@ function fillTutorialEmptyCells() {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     for (let y = 0; y < tutorialGridSize; y++) {
         for (let x = 0; x < tutorialGridSize; x++) {
-            if (tutorialGrid[y][x] === '') {
-                tutorialGrid[y][x] = alphabet[Math.floor(Math.random() * alphabet.length)];
+            if (tutorialGridData[y][x] === '') {
+                tutorialGridData[y][x] = alphabet[Math.floor(Math.random() * alphabet.length)];
             }
         }
     }
@@ -381,7 +381,7 @@ function renderTutorialGrid() {
         for (let x = 0; x < tutorialGridSize; x++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
-            cell.textContent = tutorialGrid[y][x];
+            cell.textContent = tutorialGridData[y][x];
             cell.dataset.x = x;
             cell.dataset.y = y;
             
@@ -500,7 +500,7 @@ function checkTutorialWord() {
     if (selectedCells.length < 2) return;
     
     const selectedWord = selectedCells
-        .map(({ x, y }) => tutorialGrid[y][x])
+        .map(({ x, y }) => tutorialGridData[y][x])
         .join('');
     
     const reversedWord = selectedWord.split('').reverse().join('');
